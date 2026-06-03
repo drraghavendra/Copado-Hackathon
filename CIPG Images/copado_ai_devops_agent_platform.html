@@ -1,0 +1,1048 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@300;400;500;600;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0e1a;
+  --bg2: #0f1628;
+  --bg3: #151d35;
+  --bg4: #1c2640;
+  --surface: #1e2d4a;
+  --surface2: #243354;
+  --border: rgba(99,140,255,0.15);
+  --border2: rgba(99,140,255,0.25);
+  --accent: #4f7eff;
+  --accent2: #7b9fff;
+  --green: #22d98a;
+  --green2: #1aad6e;
+  --red: #ff4d6a;
+  --amber: #f5a623;
+  --purple: #a78bfa;
+  --cyan: #22d4f5;
+  --text: #e8eeff;
+  --text2: #8fa8d0;
+  --text3: #5570a0;
+  --font: 'Sora', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --r: 10px;
+  --r2: 14px;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── layout ── */
+.shell { display: flex; height: 100vh; min-height: 700px; }
+
+/* ── sidebar ── */
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+.logo {
+  padding: 20px 16px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+.logo-text { font-size: 13px; font-weight: 600; letter-spacing: 0.3px; }
+.logo-sub  { font-size: 10px; color: var(--text3); margin-top: 1px; }
+
+.nav { padding: 12px 8px; flex: 1; overflow-y: auto; }
+.nav-section { font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); padding: 8px 8px 4px; }
+.nav-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border-radius: var(--r);
+  font-size: 12.5px; color: var(--text2);
+  cursor: pointer; transition: all .15s;
+  margin-bottom: 2px; position: relative;
+}
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item.active { background: rgba(79,126,255,0.12); color: var(--accent2); }
+.nav-item.active::before { content:''; position:absolute; left:0; top:25%; bottom:25%; width:2.5px; background:var(--accent); border-radius:0 2px 2px 0; }
+.nav-icon { font-size: 14px; width: 16px; text-align: center; }
+.nav-badge { margin-left: auto; background: var(--red); color: #fff; border-radius: 10px; font-size: 9px; font-weight: 700; padding: 1px 6px; }
+.nav-badge.green { background: var(--green2); }
+.nav-badge.amber { background: var(--amber); color: #1a1000; }
+
+.sidebar-footer {
+  padding: 12px 8px;
+  border-top: 1px solid var(--border);
+  font-size: 11px; color: var(--text3);
+}
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; margin-right: 6px; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ── main ── */
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+/* ── topbar ── */
+.topbar {
+  height: 52px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 20px; gap: 12px;
+  flex-shrink: 0;
+}
+.topbar-title { font-size: 14px; font-weight: 600; flex: 1; }
+.topbar-title span { color: var(--text3); font-weight: 400; font-size: 12px; margin-left: 8px; }
+.tb-btn {
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 5px 12px; font-size: 11.5px;
+  color: var(--text2); cursor: pointer; font-family: var(--font);
+  display: flex; align-items: center; gap: 5px; transition: all .15s;
+}
+.tb-btn:hover { background: var(--surface); color: var(--text); }
+.tb-btn.primary { background: rgba(79,126,255,0.15); border-color: rgba(79,126,255,0.4); color: var(--accent2); }
+.tb-btn.primary:hover { background: rgba(79,126,255,0.25); }
+
+/* ── content grid ── */
+.content { flex: 1; display: flex; min-height: 0; }
+
+/* ── panels ── */
+.panel-left  { width: 340px; min-width: 280px; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+.panel-right { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+/* ── pipeline list ── */
+.section-header {
+  padding: 12px 16px 8px;
+  font-size: 10.5px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .8px; color: var(--text3);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.section-header .chip {
+  margin-left: auto; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 6px; padding: 1px 7px; font-size: 9.5px;
+  color: var(--text3); font-weight: 500;
+}
+
+.pipeline-list { flex: 1; overflow-y: auto; padding: 8px; }
+.pipeline-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 12px 14px;
+  margin-bottom: 8px; cursor: pointer; transition: all .15s;
+  position: relative; overflow: hidden;
+}
+.pipeline-card::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  border-radius: 3px 0 0 3px;
+}
+.pipeline-card.status-fail::before { background: var(--red); }
+.pipeline-card.status-pass::before { background: var(--green); }
+.pipeline-card.status-warn::before { background: var(--amber); }
+.pipeline-card.status-run::before  { background: var(--accent); }
+.pipeline-card:hover { border-color: var(--border2); background: var(--bg4); }
+.pipeline-card.selected { border-color: rgba(79,126,255,0.45); background: rgba(79,126,255,0.06); }
+
+.pc-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.pc-name { font-size: 12.5px; font-weight: 600; flex: 1; }
+.pc-badge {
+  border-radius: 6px; padding: 2px 8px; font-size: 9.5px; font-weight: 600;
+}
+.pc-badge.fail { background: rgba(255,77,106,.15); color: var(--red); border: 1px solid rgba(255,77,106,.3); }
+.pc-badge.pass { background: rgba(34,217,138,.12); color: var(--green); border: 1px solid rgba(34,217,138,.3); }
+.pc-badge.warn { background: rgba(245,166,35,.12); color: var(--amber); border: 1px solid rgba(245,166,35,.3); }
+.pc-badge.run  { background: rgba(79,126,255,.12); color: var(--accent2); border: 1px solid rgba(79,126,255,.3); }
+
+.pc-meta { font-size: 10.5px; color: var(--text3); display: flex; gap: 10px; }
+.pc-meta span { display: flex; align-items: center; gap: 3px; }
+
+.pc-progress { margin-top: 8px; height: 3px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
+.pc-progress-bar { height: 100%; border-radius: 2px; transition: width .3s; }
+.pc-progress-bar.red   { background: var(--red); }
+.pc-progress-bar.green { background: var(--green); }
+.pc-progress-bar.amber { background: var(--amber); }
+.pc-progress-bar.blue  { background: var(--accent); animation: progress-run 1.5s linear infinite; }
+@keyframes progress-run { 0%{background-position:0} 100%{background-position:200px} }
+
+/* ── chat panel ── */
+.chat-container {
+  flex: 1; display: flex; flex-direction: column; min-height: 0;
+}
+.chat-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0;
+}
+.agent-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, #4f7eff 0%, #a78bfa 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.agent-name { font-size: 13px; font-weight: 600; }
+.agent-status { font-size: 10.5px; color: var(--green); display: flex; align-items: center; gap: 4px; }
+
+.model-pill {
+  margin-left: auto;
+  background: rgba(167,139,250,.1); border: 1px solid rgba(167,139,250,.25);
+  border-radius: 20px; padding: 3px 10px; font-size: 10px; color: var(--purple);
+  font-family: var(--mono);
+}
+
+.messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.message { display: flex; gap: 10px; animation: msg-in .2s ease; }
+@keyframes msg-in { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+.msg-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; flex-shrink: 0; margin-top: 2px;
+}
+.msg-avatar.agent { background: linear-gradient(135deg, #4f7eff, #a78bfa); }
+.msg-avatar.user  { background: var(--surface2); font-size: 10px; font-weight: 600; color: var(--accent2); }
+
+.msg-body { flex: 1; min-width: 0; }
+.msg-name  { font-size: 10.5px; color: var(--text3); margin-bottom: 4px; }
+.msg-bubble {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 4px 12px 12px 12px;
+  padding: 10px 13px; font-size: 12.5px; line-height: 1.65;
+  color: var(--text);
+}
+.message.user .msg-bubble {
+  background: rgba(79,126,255,0.1); border-color: rgba(79,126,255,.25);
+  border-radius: 12px 4px 12px 12px;
+}
+.msg-bubble code {
+  font-family: var(--mono); font-size: 11px;
+  background: var(--bg4); border: 1px solid var(--border);
+  border-radius: 4px; padding: 1px 5px; color: var(--cyan);
+}
+.msg-bubble pre {
+  font-family: var(--mono); font-size: 10.5px;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 12px; margin-top: 8px;
+  overflow-x: auto; color: var(--cyan); line-height: 1.6;
+}
+.msg-bubble .log-line { display: block; }
+.msg-bubble .log-error { color: var(--red); }
+.msg-bubble .log-warn  { color: var(--amber); }
+.msg-bubble .log-info  { color: var(--green); }
+.msg-bubble .log-dim   { color: var(--text3); }
+
+.action-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.action-btn {
+  background: var(--bg4); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 5px 11px; font-size: 11px;
+  color: var(--text2); cursor: pointer; font-family: var(--font);
+  transition: all .15s; display: flex; align-items: center; gap: 5px;
+}
+.action-btn:hover { background: var(--surface); border-color: var(--accent); color: var(--text); }
+.action-btn.danger { border-color: rgba(255,77,106,.3); color: var(--red); }
+.action-btn.danger:hover { background: rgba(255,77,106,.1); }
+.action-btn.success { border-color: rgba(34,217,138,.3); color: var(--green); }
+.action-btn.success:hover { background: rgba(34,217,138,.08); }
+
+.typing-indicator {
+  display: flex; align-items: center; gap: 4px; padding: 10px 13px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 4px 12px 12px 12px; width: fit-content;
+}
+.typing-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--text3); animation: type-bounce .9s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: .15s; }
+.typing-dot:nth-child(3) { animation-delay: .3s; }
+@keyframes type-bounce { 0%,100%{transform:translateY(0);opacity:.3} 50%{transform:translateY(-4px);opacity:1} }
+
+.chat-input-area {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 8px; align-items: flex-end;
+  flex-shrink: 0;
+}
+.chat-input-wrap { flex: 1; position: relative; }
+.chat-input {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 9px 40px 9px 14px;
+  font-size: 12.5px; font-family: var(--font); color: var(--text);
+  outline: none; resize: none; min-height: 40px; max-height: 120px;
+  transition: border-color .15s; line-height: 1.5;
+}
+.chat-input:focus { border-color: rgba(79,126,255,.5); }
+.chat-input::placeholder { color: var(--text3); }
+.send-btn {
+  position: absolute; right: 8px; bottom: 8px;
+  width: 26px; height: 26px; border-radius: 7px;
+  background: var(--accent); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 12px; transition: all .15s;
+}
+.send-btn:hover { background: #6e93ff; }
+
+/* ── detail right pane ── */
+.detail-pane {
+  width: 320px; min-width: 260px;
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  background: var(--bg2);
+}
+.detail-header {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 10.5px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .8px; color: var(--text3);
+  display: flex; align-items: center; gap: 8px;
+}
+.detail-body { flex: 1; overflow-y: auto; padding: 12px; }
+
+.metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.metric-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 10px 12px;
+}
+.metric-label { font-size: 9.5px; text-transform: uppercase; letter-spacing: .6px; color: var(--text3); margin-bottom: 4px; }
+.metric-value { font-size: 18px; font-weight: 600; font-family: var(--mono); }
+.metric-value.red    { color: var(--red); }
+.metric-value.green  { color: var(--green); }
+.metric-value.amber  { color: var(--amber); }
+.metric-value.blue   { color: var(--accent2); }
+.metric-sub { font-size: 9.5px; color: var(--text3); margin-top: 2px; }
+
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.tl-item { display: flex; gap: 10px; padding-bottom: 14px; position: relative; }
+.tl-item::before {
+  content:''; position:absolute; left:6px; top:16px; bottom:0;
+  width:1px; background: var(--border);
+}
+.tl-item:last-child::before { display:none; }
+.tl-dot {
+  width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid var(--bg2); margin-top: 2px; position: relative; z-index: 1;
+}
+.tl-dot.fail  { background: var(--red); }
+.tl-dot.pass  { background: var(--green); }
+.tl-dot.warn  { background: var(--amber); }
+.tl-dot.agent { background: var(--accent); }
+.tl-content {}
+.tl-label { font-size: 11.5px; font-weight: 500; color: var(--text); }
+.tl-desc  { font-size: 10.5px; color: var(--text3); margin-top: 1px; }
+.tl-time  { font-size: 9.5px; color: var(--text3); margin-top: 2px; font-family: var(--mono); }
+
+.stages { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+.stage-row {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 10px; font-size: 11px;
+}
+.stage-icon { font-size: 12px; width: 14px; text-align: center; }
+.stage-name { flex: 1; font-weight: 500; }
+.stage-dur  { font-size: 10px; color: var(--text3); font-family: var(--mono); }
+.stage-status { font-size: 9.5px; padding: 1px 7px; border-radius: 5px; font-weight: 600; }
+.stage-status.pass { background: rgba(34,217,138,.12); color: var(--green); }
+.stage-status.fail { background: rgba(255,77,106,.12); color: var(--red); }
+.stage-status.skip { background: var(--bg4); color: var(--text3); }
+
+.integration-strip {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px;
+}
+.int-pill {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 20px; padding: 3px 10px; font-size: 10px; color: var(--text2);
+  display: flex; align-items: center; gap: 4px;
+}
+.int-pill .dot { width: 5px; height: 5px; border-radius: 50%; }
+
+/* ── scrollbars ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
+
+/* ── tabs ── */
+.tabs { display: flex; gap: 2px; padding: 8px 8px 0; border-bottom: 1px solid var(--border); }
+.tab {
+  padding: 6px 12px; border-radius: 7px 7px 0 0;
+  font-size: 11px; cursor: pointer; color: var(--text3); transition: all .15s;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.tab:hover { color: var(--text2); }
+.tab.active { color: var(--accent2); border-bottom-color: var(--accent); background: rgba(79,126,255,.04); }
+
+.tab-body { display: none; flex: 1; flex-direction: column; min-height: 0; overflow: hidden; }
+.tab-body.active { display: flex; }
+
+/* ── quick actions ── */
+.quick-actions {
+  padding: 10px; display: flex; flex-direction: column; gap: 6px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.qa-title { font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; color: var(--text3); padding: 0 4px 4px; }
+.qa-row { display: flex; gap: 6px; }
+.qa-btn {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 8px; font-size: 10.5px;
+  color: var(--text2); cursor: pointer; font-family: var(--font);
+  text-align: center; transition: all .15s;
+}
+.qa-btn:hover { background: var(--surface); color: var(--text); border-color: var(--border2); }
+
+/* ── notification toast ── */
+#toast {
+  position: fixed; top: 16px; right: 16px;
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 10px 14px;
+  font-size: 12px; color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+  transform: translateY(-80px); opacity: 0;
+  transition: all .3s; z-index: 1000; max-width: 300px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+#toast .toast-icon { font-size: 16px; }
+
+</style>
+</head>
+<body>
+
+<div id="toast"><span class="toast-icon">🔔</span><span id="toast-msg"></span></div>
+
+<div class="shell">
+  <!-- ── sidebar ── -->
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <div>
+        <div class="logo-text">Copado AI</div>
+        <div class="logo-sub">DevOps Agent</div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="nav-section">Monitor</div>
+      <div class="nav-item active" onclick="switchView('dashboard')"><span class="nav-icon">◈</span>Dashboard</div>
+      <div class="nav-item" onclick="switchView('pipelines')"><span class="nav-icon">⊞</span>Pipelines<span class="nav-badge">3</span></div>
+      <div class="nav-item" onclick="switchView('alerts')"><span class="nav-icon">◎</span>Alerts<span class="nav-badge">2</span></div>
+
+      <div class="nav-section">Agent</div>
+      <div class="nav-item" onclick="switchView('chat')"><span class="nav-icon">◇</span>AI Conversation</div>
+      <div class="nav-item" onclick="switchView('flows')"><span class="nav-icon">⊿</span>SF Flows<span class="nav-badge green">4</span></div>
+      <div class="nav-item" onclick="switchView('apex')"><span class="nav-icon">⊂</span>Apex Logs</div>
+
+      <div class="nav-section">Integrations</div>
+      <div class="nav-item" onclick="switchView('slack')"><span class="nav-icon">⊕</span>Slack<span class="nav-badge green">Live</span></div>
+      <div class="nav-item" onclick="switchView('webhooks')"><span class="nav-icon">↗</span>Webhooks<span class="nav-badge amber">3</span></div>
+      <div class="nav-item"><span class="nav-icon">⚙</span>Settings</div>
+    </div>
+    <div class="sidebar-footer">
+      <span class="status-dot"></span>Copado AI API: Connected
+    </div>
+  </div>
+
+  <!-- ── main ── -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">AI Agent Console <span>Track C · Headless Hackathon</span></div>
+      <button class="tb-btn" onclick="triggerWebhook()">⚡ Trigger Webhook</button>
+      <button class="tb-btn primary" onclick="callCopadoAPI()">⊕ Invoke Copado AI</button>
+      <button class="tb-btn" onclick="showToast('🔗 Slack notification sent!', 3000)">⊞ Notify Slack</button>
+    </div>
+
+    <div class="content">
+      <!-- ── pipeline list ── -->
+      <div class="panel-left">
+        <div class="section-header">
+          Pipeline Status <span class="chip" id="pipeline-count">4 pipelines</span>
+        </div>
+        <div class="pipeline-list" id="pipeline-list"></div>
+      </div>
+
+      <!-- ── chat + detail ── -->
+      <div class="panel-right">
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab('chat',this)">AI Agent Chat</div>
+          <div class="tab" onclick="switchTab('apex',this)">Apex Service</div>
+          <div class="tab" onclick="switchTab('lwc',this)">LWC Component</div>
+          <div class="tab" onclick="switchTab('flow',this)">SF Flow</div>
+        </div>
+
+        <!-- chat tab -->
+        <div class="tab-body active" id="tab-chat">
+          <div class="chat-container">
+            <div class="chat-header">
+              <div class="agent-avatar">🤖</div>
+              <div>
+                <div class="agent-name">CopadoAI DevBot</div>
+                <div class="agent-status"><span class="status-dot" style="width:5px;height:5px"></span>Online · Monitoring 4 pipelines</div>
+              </div>
+              <div class="model-pill">copado-ai-v3</div>
+            </div>
+            <div class="quick-actions">
+              <div class="qa-title">Quick Actions</div>
+              <div class="qa-row">
+                <button class="qa-btn" onclick="insertMsg('Show pipeline health summary')">📊 Health Check</button>
+                <button class="qa-btn" onclick="insertMsg('Diagnose the failed deployment on order-service')">🔍 Diagnose Failure</button>
+                <button class="qa-btn" onclick="insertMsg('Suggest remediation steps for test failures')">🛠 Remediation</button>
+              </div>
+              <div class="qa-row">
+                <button class="qa-btn" onclick="insertMsg('Re-run the failing test suite on staging')">▶ Re-run Tests</button>
+                <button class="qa-btn" onclick="insertMsg('Show deployment logs for last 24 hours')">📋 View Logs</button>
+                <button class="qa-btn" onclick="insertMsg('What apex classes are involved in the error?')">⚡ Apex Context</button>
+              </div>
+            </div>
+            <div class="messages" id="messages"></div>
+            <div class="chat-input-area">
+              <div class="chat-input-wrap">
+                <textarea class="chat-input" id="chat-input" placeholder="Ask the AI Agent about your pipelines, deployments, or errors…" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+                <button class="send-btn" onclick="sendMessage()">➤</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- apex tab -->
+        <div class="tab-body" id="tab-apex">
+          <div style="padding:16px;flex:1;overflow-y:auto">
+            <div class="detail-header" style="margin-bottom:12px;padding:0 0 10px;border-bottom:1px solid var(--border)">Apex Service Class — CopadoAIService.cls</div>
+            <pre style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px;font-size:11px;font-family:var(--mono);color:var(--cyan);line-height:1.7;overflow-x:auto"><span style="color:#a78bfa">public class</span> <span style="color:#22d4f5">CopadoAIService</span> {
+
+    <span style="color:#5570a0">// Copado AI Platform API endpoint</span>
+    <span style="color:#a78bfa">private static final</span> String API_URL =
+        <span style="color:#22d98a">'https://api.copado.com/ai/v1/conversations'</span>;
+
+    <span style="color:#5570a0">/**
+     * Sends pipeline failure context to Copado AI API
+     * and returns structured remediation suggestions
+     */</span>
+    <span style="color:#a78bfa">public static</span> CopadoAIResponse analyzeFailure(
+        String pipelineId,
+        String errorLog,
+        String failedStage
+    ) {
+        HttpRequest req = <span style="color:#a78bfa">new</span> HttpRequest();
+        req.setEndpoint(API_URL);
+        req.setMethod(<span style="color:#22d98a">'POST'</span>);
+        req.setHeader(<span style="color:#22d98a">'Content-Type'</span>, <span style="color:#22d98a">'application/json'</span>);
+        req.setHeader(<span style="color:#22d98a">'Authorization'</span>, <span style="color:#22d98a">'Bearer '</span> + getApiKey());
+
+        Map&lt;String,Object&gt; body = <span style="color:#a78bfa">new</span> Map&lt;String,Object&gt;{
+            <span style="color:#22d98a">'pipeline_id'</span>  =&gt; pipelineId,
+            <span style="color:#22d98a">'error_log'</span>    =&gt; errorLog,
+            <span style="color:#22d98a">'stage'</span>        =&gt; failedStage,
+            <span style="color:#22d98a">'model'</span>        =&gt; <span style="color:#22d98a">'copado-ai-v3'</span>,
+            <span style="color:#22d98a">'context_type'</span> =&gt; <span style="color:#22d98a">'deployment_failure'</span>
+        };
+        req.setBody(JSON.serialize(body));
+
+        Http http = <span style="color:#a78bfa">new</span> Http();
+        HttpResponse res = http.send(req);
+
+        <span style="color:#a78bfa">if</span> (res.getStatusCode() == <span style="color:#f5a623">200</span>) {
+            <span style="color:#a78bfa">return</span> (CopadoAIResponse) JSON.deserialize(
+                res.getBody(), CopadoAIResponse.class
+            );
+        }
+        <span style="color:#a78bfa">throw new</span> CopadoAIException(
+            <span style="color:#22d98a">'API Error: '</span> + res.getStatus()
+        );
+    }
+
+    <span style="color:#5570a0">// Trigger Slack notification via webhook</span>
+    <span style="color:#a78bfa">public static void</span> notifySlack(
+        String channel, String message,
+        List&lt;SlackAction&gt; actions
+    ) {
+        SlackWebhookService.send(channel, message, actions);
+    }
+
+    <span style="color:#5570a0">// Retrieve API key from Named Credential</span>
+    <span style="color:#a78bfa">private static</span> String getApiKey() {
+        <span style="color:#a78bfa">return</span> [SELECT Value__c FROM CopadoConfig__c
+                WHERE Name = <span style="color:#22d98a">'AI_API_KEY'</span> LIMIT 1].Value__c;
+    }
+}</pre>
+          </div>
+        </div>
+
+        <!-- lwc tab -->
+        <div class="tab-body" id="tab-lwc">
+          <div style="padding:16px;flex:1;overflow-y:auto">
+            <div class="detail-header" style="margin-bottom:12px;padding:0 0 10px;border-bottom:1px solid var(--border)">LWC Component — copadoAIChat.js</div>
+            <pre style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px;font-size:11px;font-family:var(--mono);color:var(--cyan);line-height:1.7;overflow-x:auto"><span style="color:#a78bfa">import</span> { LightningElement, track, wire }
+    <span style="color:#a78bfa">from</span> <span style="color:#22d98a">'lwc'</span>;
+<span style="color:#a78bfa">import</span> analyzeFailure
+    <span style="color:#a78bfa">from</span> <span style="color:#22d98a">'@salesforce/apex/CopadoAIService.analyzeFailure'</span>;
+<span style="color:#a78bfa">import</span> { getRecord }
+    <span style="color:#a78bfa">from</span> <span style="color:#22d98a">'lightning/uiRecordApi'</span>;
+<span style="color:#a78bfa">import</span> { ShowToastEvent }
+    <span style="color:#a78bfa">from</span> <span style="color:#22d98a">'lightning/platformShowToastEvent'</span>;
+
+<span style="color:#a78bfa">export default class</span> <span style="color:#22d4f5">CopadoAIChat</span>
+    <span style="color:#a78bfa">extends</span> LightningElement {
+
+    @track messages   = [];
+    @track isTyping   = <span style="color:#f5a623">false</span>;
+    @track userInput  = <span style="color:#22d98a">''</span>;
+    @track pipelineId = <span style="color:#22d98a">''</span>;
+
+    <span style="color:#5570a0">// Wire to Copado Pipeline record</span>
+    @wire(getRecord, {
+        recordId: <span style="color:#22d98a">'$pipelineId'</span>,
+        fields: [<span style="color:#22d98a">'Pipeline__c.Status__c'</span>,
+                 <span style="color:#22d98a">'Pipeline__c.ErrorLog__c'</span>]
+    })
+    pipeline;
+
+    <span style="color:#a78bfa">async</span> handleSendMessage() {
+        <span style="color:#a78bfa">const</span> userMsg = this.userInput.trim();
+        <span style="color:#a78bfa">if</span> (!userMsg) <span style="color:#a78bfa">return</span>;
+
+        this.messages.push({
+            id: Date.now(), role: <span style="color:#22d98a">'user'</span>,
+            content: userMsg
+        });
+        this.userInput  = <span style="color:#22d98a">''</span>;
+        this.isTyping   = <span style="color:#f5a623">true</span>;
+
+        <span style="color:#a78bfa">try</span> {
+            <span style="color:#a78bfa">const</span> response = <span style="color:#a78bfa">await</span> analyzeFailure({
+                pipelineId: this.pipelineId,
+                errorLog:   this.pipeline.data?.fields
+                               .ErrorLog__c?.value,
+                userQuery:  userMsg
+            });
+
+            this.messages.push({
+                id: Date.now(), role: <span style="color:#22d98a">'agent'</span>,
+                content: response.message,
+                actions: response.suggestedActions
+            });
+        } <span style="color:#a78bfa">catch</span>(e) {
+            this.dispatchEvent(<span style="color:#a78bfa">new</span> ShowToastEvent({
+                title:   <span style="color:#22d98a">'AI Agent Error'</span>,
+                message: e.body?.message,
+                variant: <span style="color:#22d98a">'error'</span>
+            }));
+        } <span style="color:#a78bfa">finally</span> {
+            this.isTyping = <span style="color:#f5a623">false</span>;
+        }
+    }
+}</pre>
+          </div>
+        </div>
+
+        <!-- flow tab -->
+        <div class="tab-body" id="tab-flow">
+          <div style="padding:16px;flex:1;overflow-y:auto">
+            <div class="detail-header" style="margin-bottom:12px;padding:0 0 10px;border-bottom:1px solid var(--border)">Salesforce Flow — Pipeline Failure Monitor</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <!-- flow nodes -->
+              <div id="flow-viz"></div>
+              <div style="font-size:11px;color:var(--text3);margin-top:8px;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;line-height:1.7">
+                <strong style="color:var(--text2)">Flow Configuration:</strong><br>
+                • Trigger: Record-Change on <code style="font-family:var(--mono);font-size:10.5px;color:var(--cyan)">copado__Result__c</code><br>
+                • Condition: <code style="font-family:var(--mono);font-size:10.5px;color:var(--cyan)">Status__c = 'Failed'</code><br>
+                • Action: Calls <code style="font-family:var(--mono);font-size:10.5px;color:var(--cyan)">CopadoAIService.analyzeFailure()</code><br>
+                • Output: Posts to Slack + Creates Case record<br>
+                • Escalation: Auto-assign to on-call engineer if severity HIGH
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── right detail pane ── -->
+      <div class="detail-pane">
+        <div class="detail-header">⊞ Pipeline Detail</div>
+        <div class="detail-body" id="detail-body">
+          <!-- populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────
+const PIPELINES = [
+  {
+    id:'p1', name:'order-service', branch:'main', status:'fail',
+    duration:'4m 32s', ago:'3 min ago', progress:62, trigger:'push',
+    stages:[
+      {icon:'⊙',name:'Build',dur:'45s',status:'pass'},
+      {icon:'⊞',name:'Unit Tests',dur:'1m 12s',status:'fail'},
+      {icon:'⊿',name:'Integration',dur:'-',status:'skip'},
+      {icon:'⊕',name:'Deploy Staging',dur:'-',status:'skip'},
+    ],
+    metrics:{tests:'47 failed',coverage:'63%',duration:'4m 32s',deploys:'0'},
+    timeline:[
+      {type:'fail',label:'47 unit tests failed',desc:'NullPointerException in OrderService.cls',time:'3m ago'},
+      {type:'agent',label:'AI Agent triggered',desc:'Analyzing error patterns via Copado AI API',time:'2m 58s ago'},
+      {type:'warn',label:'Slack notified',desc:'#deployments · 3 engineers alerted',time:'2m 55s ago'},
+      {type:'pass',label:'Case SF-2847 created',desc:'Assigned to @dev-oncall',time:'2m 50s ago'},
+    ]
+  },
+  {
+    id:'p2', name:'payment-gateway', branch:'release/v2.4', status:'pass',
+    duration:'11m 08s', ago:'15 min ago', progress:100, trigger:'PR merge',
+    stages:[
+      {icon:'⊙',name:'Build',dur:'1m 20s',status:'pass'},
+      {icon:'⊞',name:'Unit Tests',dur:'3m 40s',status:'pass'},
+      {icon:'⊿',name:'Integration',dur:'2m 18s',status:'pass'},
+      {icon:'⊕',name:'Deploy Staging',dur:'3m 50s',status:'pass'},
+    ],
+    metrics:{tests:'312 passed',coverage:'91%',duration:'11m 08s',deploys:'1'},
+    timeline:[
+      {type:'pass',label:'Deployment complete',desc:'payment-gateway v2.4.0 → staging',time:'15m ago'},
+      {type:'agent',label:'AI sign-off',desc:'No anomalies detected by Copado AI',time:'14m ago'},
+    ]
+  },
+  {
+    id:'p3', name:'user-profile-svc', branch:'feature/avatar', status:'warn',
+    duration:'8m 14s', ago:'28 min ago', progress:85, trigger:'schedule',
+    stages:[
+      {icon:'⊙',name:'Build',dur:'55s',status:'pass'},
+      {icon:'⊞',name:'Unit Tests',dur:'2m 10s',status:'pass'},
+      {icon:'⊿',name:'Integration',dur:'4m 09s',status:'warn'},
+      {icon:'⊕',name:'Deploy Staging',dur:'1m 00s',status:'pass'},
+    ],
+    metrics:{tests:'198 passed (2 flaky)',coverage:'78%',duration:'8m 14s',deploys:'1'},
+    timeline:[
+      {type:'warn',label:'2 flaky tests detected',desc:'Non-blocking — marked for review',time:'28m ago'},
+      {type:'agent',label:'AI recommendation',desc:'Suggest retry with --seed=1234',time:'27m ago'},
+    ]
+  },
+  {
+    id:'p4', name:'analytics-worker', branch:'main', status:'run',
+    duration:'2m 40s running', ago:'now', progress:55, trigger:'push',
+    stages:[
+      {icon:'⊙',name:'Build',dur:'1m 10s',status:'pass'},
+      {icon:'⊞',name:'Unit Tests',dur:'1m 30s…',status:'pass'},
+      {icon:'⊿',name:'Integration',dur:'-',status:'skip'},
+      {icon:'⊕',name:'Deploy',dur:'-',status:'skip'},
+    ],
+    metrics:{tests:'Running…',coverage:'—',duration:'2m 40s+',deploys:'—'},
+    timeline:[
+      {type:'pass',label:'Build succeeded',desc:'analytics-worker:a3f912b',time:'2m 30s ago'},
+      {type:'agent',label:'AI monitoring',desc:'Watching test execution patterns',time:'now'},
+    ]
+  },
+];
+
+const AI_RESPONSES = {
+  default: (q) => ({
+    text: `I've processed your query through the Copado AI Platform API. Based on current pipeline telemetry:\n\n**Pipeline Health**: 1 critical failure (order-service), 1 in progress (analytics-worker), 2 healthy.\n\nIs there a specific pipeline or issue you'd like me to deep-dive on?`,
+    actions:[{label:'View Full Report',style:''},  {label:'Alert Team on Slack',style:'success'}]
+  }),
+  health: () => ({
+    text: `Here's your current pipeline health summary:\n\n• 🔴 **order-service** — 47 unit tests failing (NullPointerException in OrderService.cls)\n• 🟡 **user-profile-svc** — 2 flaky tests, non-blocking\n• 🟢 **payment-gateway** — All checks passed, deployed to staging\n• 🔵 **analytics-worker** — Currently running (2m 40s elapsed)\n\nOverall score: **62/100**. I recommend prioritizing the order-service failure — it's blocking the deploy pipeline.`,
+    actions:[{label:'Diagnose order-service',style:''},{label:'Generate JIRA tickets',style:''},{label:'Page On-Call',style:'danger'}]
+  }),
+  diagnose: () => ({
+    text: `Analyzing order-service failure via Copado AI API…\n\nRoot cause identified:\n\n\`\`\`\nSystem.NullPointerException: Attempt to\nde-reference null object at line 847 in\nOrderService.cls method processPayment()\n\nStack trace:\n  OrderService.processPayment():847\n  OrderController.handleCheckout():124\n  Trigger.OrderTrigger:line 12\n\`\`\`\n\nThe failure is in **processPayment()** — the payment gateway response object isn't null-checked before accessing **transactionId**. This was introduced in commit \`a3f912b\`.`,
+    actions:[{label:'View Diff on GitHub',style:''},{label:'Auto-fix with AI',style:'success'},{label:'Rollback Commit',style:'danger'}]
+  }),
+  remediation: () => ({
+    text: `I've generated 3 remediation options, ranked by confidence:\n\n**Option 1 (98% confidence)** — Null-guard fix:\nAdd a null check before accessing \`response.transactionId\` on line 847 of OrderService.cls. This is a 2-line change.\n\n**Option 2 (82% confidence)** — Add unit test:\nThe test suite is missing coverage for the null-response path. Add a mock that returns \`null\` from the payment API.\n\n**Option 3 (71% confidence)** — Environment issue:\nStaging payment gateway may be returning malformed responses. Verify endpoint health.\n\nShall I generate a PR for Option 1?`,
+    actions:[{label:'Generate PR (Option 1)',style:'success'},{label:'Add Test (Option 2)',style:''},{label:'Check Endpoint Health',style:''}]
+  }),
+  rerun: () => ({
+    text: `Test re-run triggered via Copado AI Platform API.\n\nJob ID: \`copado-run-8847-f2a9\`\nPipeline: order-service\nBranch: main\nRunner: GitHub Actions (SF sandbox)\nEstimated completion: ~4 minutes\n\nI'll notify you in #deployments when complete. You can track progress in the pipeline panel.`,
+    actions:[{label:'Monitor in Real-time',style:''},{label:'Cancel Run',style:'danger'}]
+  }),
+  logs: () => ({
+    text: `Deployment logs retrieved for last 24 hours:\n\n\`\`\`\n[ERROR] 14:32:11 order-service/main — 47 tests failed\n[WARN]  13:18:44 user-profile-svc — 2 flaky tests\n[INFO]  12:05:20 payment-gateway — deployed v2.4.0\n[INFO]  11:44:08 analytics-worker — build passed\n[ERROR] 09:12:55 order-service/hotfix — deploy failed\n[INFO]  08:30:00 payment-gateway — tests passed (312)\n\`\`\`\n\nMost frequent error: \`NullPointerException\` in order-service (appears 3× in 24h). This is a recurring issue — AI suggests adding a permanent fix to the backlog.`,
+    actions:[{label:'Export Logs as CSV',style:''},{label:'Create Tech Debt Ticket',style:''}]
+  }),
+  apex: () => ({
+    text: `Apex classes involved in the current failure:\n\n• **OrderService.cls** (line 847) — Root cause\n• **OrderController.cls** (line 124) — Call site\n• **Trigger.OrderTrigger** (line 12) — Entry point\n• **PaymentGatewayService.cls** — External dependency\n\nThe Copado AI Platform API identified that \`PaymentGatewayService.getResponse()\` can return \`null\` on timeout, but the caller (\`OrderService.processPayment()\`) doesn't handle this case. Copado Flow has already created a task in SF org assigned to the component owner.`,
+    actions:[{label:'Open in VS Code',style:''},{label:'View Apex Coverage',style:''},{label:'Run Apex Debug',style:''}]
+  }),
+};
+
+let selectedPipeline = null;
+let conversationHistory = [];
+
+// ── PIPELINE LIST ──────────────────────────────────────────────
+function renderPipelines() {
+  const list = document.getElementById('pipeline-list');
+  list.innerHTML = PIPELINES.map(p => `
+    <div class="pipeline-card status-${p.status} ${selectedPipeline?.id===p.id?'selected':''}"
+         onclick="selectPipeline('${p.id}')">
+      <div class="pc-top">
+        <span class="pc-name">${p.name}</span>
+        <span class="pc-badge ${p.status}">${{fail:'FAILED',pass:'PASSED',warn:'WARNING',run:'RUNNING'}[p.status]}</span>
+      </div>
+      <div class="pc-meta">
+        <span>⊞ ${p.branch}</span>
+        <span>⊙ ${p.trigger}</span>
+        <span>⊕ ${p.ago}</span>
+      </div>
+      <div class="pc-progress">
+        <div class="pc-progress-bar ${p.status==='fail'?'red':p.status==='pass'?'green':p.status==='warn'?'amber':'blue'}"
+             style="width:${p.progress}%"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectPipeline(id) {
+  selectedPipeline = PIPELINES.find(p=>p.id===id);
+  renderPipelines();
+  renderDetail();
+}
+
+// ── DETAIL PANE ─────────────────────────────────────────────
+function renderDetail() {
+  const p = selectedPipeline || PIPELINES[0];
+  const metricColors = {fail:{tests:'red',coverage:'amber',duration:'',deploys:'red'}, pass:{tests:'green',coverage:'green',duration:'',deploys:'blue'}, warn:{tests:'amber',coverage:'amber',duration:'',deploys:'blue'}, run:{tests:'blue',coverage:'',duration:'',deploys:''}};
+  const mc = metricColors[p.status];
+  const metricLabels = ['Tests','Coverage','Duration','Deploys'];
+  const metricKeys = ['tests','coverage','duration','deploys'];
+
+  document.getElementById('detail-body').innerHTML = `
+    <div style="margin-bottom:10px">
+      <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px">${p.name}</div>
+      <div style="font-size:10.5px;color:var(--text3)">${p.branch} · triggered by ${p.trigger}</div>
+    </div>
+
+    <div class="metric-grid">
+      ${metricKeys.map((k,i)=>`
+        <div class="metric-card">
+          <div class="metric-label">${metricLabels[i]}</div>
+          <div class="metric-value ${mc[k]||''}" style="font-size:13px">${p.metrics[k]}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--text3);margin-bottom:6px;font-weight:600">Stages</div>
+    <div class="stages">
+      ${p.stages.map(s=>`
+        <div class="stage-row">
+          <span class="stage-icon">${s.icon}</span>
+          <span class="stage-name">${s.name}</span>
+          <span class="stage-dur">${s.dur}</span>
+          <span class="stage-status ${s.status}">${s.status.toUpperCase()}</span>
+        </div>
+      `).join('')}
+    </div>
+
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--text3);margin-bottom:8px;font-weight:600">Timeline</div>
+    <div class="timeline">
+      ${p.timeline.map(t=>`
+        <div class="tl-item">
+          <div class="tl-dot ${t.type}"></div>
+          <div class="tl-content">
+            <div class="tl-label">${t.label}</div>
+            <div class="tl-desc">${t.desc}</div>
+            <div class="tl-time">${t.time}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--text3);margin-bottom:6px;font-weight:600;margin-top:4px">Integrations Active</div>
+    <div class="integration-strip">
+      <div class="int-pill"><span class="dot" style="background:var(--green)"></span>Copado AI API</div>
+      <div class="int-pill"><span class="dot" style="background:#4a154b"></span>Slack</div>
+      <div class="int-pill"><span class="dot" style="background:var(--accent)"></span>SF Flow</div>
+      <div class="int-pill"><span class="dot" style="background:var(--cyan)"></span>Apex</div>
+      <div class="int-pill"><span class="dot" style="background:var(--amber)"></span>Webhook</div>
+    </div>
+  `;
+}
+
+// ── CHAT ──────────────────────────────────────────────────────
+function addMessage(role, content, actions=[]) {
+  const msgs = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = `message ${role}`;
+  const avatar = role==='agent' ? '🤖' : 'YO';
+  const name   = role==='agent' ? 'CopadoAI DevBot' : 'You';
+  const actHtml = actions.length ? `<div class="action-buttons">${actions.map(a=>`<button class="action-btn ${a.style||''}" onclick="handleAction('${a.label}')">${a.label}</button>`).join('')}</div>` : '';
+
+  // format text: handle **bold**, code blocks, line breaks
+  let html = content
+    .replace(/```([\s\S]*?)```/g, (m,code)=>`<pre>${code.trim().replace(/\[ERROR\]/g,'<span class="log-error">[ERROR]</span>').replace(/\[WARN\]/g,'<span class="log-warn">[WARN]</span>').replace(/\[INFO\]/g,'<span class="log-info">[INFO]</span>').replace(/\[DEBUG\]/g,'<span class="log-dim">[DEBUG]</span>')}</pre>`)
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+    .replace(/\n/g,'<br>');
+
+  d.innerHTML = `
+    <div class="msg-avatar ${role}">${avatar}</div>
+    <div class="msg-body">
+      <div class="msg-name">${name}</div>
+      <div class="msg-bubble">${html}${actHtml}</div>
+    </div>
+  `;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'message agent'; d.id = 'typing-msg';
+  d.innerHTML = `
+    <div class="msg-avatar agent">🤖</div>
+    <div class="msg-body">
+      <div class="msg-name">CopadoAI DevBot</div>
+      <div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+    </div>
+  `;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+function hideTyping() { document.getElementById('typing-msg')?.remove(); }
+
+function getAIResponse(q) {
+  const ql = q.toLowerCase();
+  if (ql.includes('health') || ql.includes('summary')) return AI_RESPONSES.health();
+  if (ql.includes('diagnos') || ql.includes('failed') || ql.includes('failure')) return AI_RESPONSES.diagnose();
+  if (ql.includes('remedia') || ql.includes('fix') || ql.includes('suggest')) return AI_RESPONSES.remediation();
+  if (ql.includes('re-run') || ql.includes('rerun') || ql.includes('test suite')) return AI_RESPONSES.rerun();
+  if (ql.includes('log')) return AI_RESPONSES.logs();
+  if (ql.includes('apex')) return AI_RESPONSES.apex();
+  return AI_RESPONSES.default(q);
+}
+
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = ''; input.style.height = '';
+  addMessage('user', text);
+  conversationHistory.push({role:'user',content:text});
+  showTyping();
+  setTimeout(()=>{
+    hideTyping();
+    const resp = getAIResponse(text);
+    addMessage('agent', resp.text, resp.actions||[]);
+    conversationHistory.push({role:'agent',content:resp.text});
+  }, 900 + Math.random()*600);
+}
+
+function handleAction(label) {
+  addMessage('user', label);
+  showTyping();
+  setTimeout(()=>{
+    hideTyping();
+    const resp = getAIResponse(label);
+    addMessage('agent', resp.text, resp.actions||[]);
+  }, 700 + Math.random()*500);
+}
+
+function insertMsg(text) {
+  const input = document.getElementById('chat-input');
+  input.value = text; autoResize(input); sendMessage();
+}
+
+function handleKey(e) {
+  if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function autoResize(el) {
+  el.style.height=''; el.style.height=Math.min(el.scrollHeight,120)+'px';
+}
+
+// ── TABS ──────────────────────────────────────────────────────
+function switchTab(id, el) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-body').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+}
+
+function switchView(view) {
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  if (view==='chat') {
+    document.querySelector('[onclick*="switchTab(\'chat\'"]')?.click();
+  }
+}
+
+// ── TOOLBAR ACTIONS ───────────────────────────────────────────
+function triggerWebhook() {
+  showToast('⚡ Webhook fired — copado/pipeline/failed event dispatched', 3000);
+  setTimeout(()=>{
+    addMessage('agent',
+      `Webhook event received!\n\n**Event**: \`copado/pipeline/failed\`\n**Source**: GitHub Actions → Salesforce\n**Payload**: order-service · main · commit a3f912b\n\nSalesforce Flow **Pipeline_Failure_Monitor** has been triggered. Apex class **CopadoAIService** is now calling the Copado AI Platform API to analyze the failure.`,
+      [{label:'View Flow Execution',style:''},{label:'See Apex Logs',style:''}]
+    );
+    const chatTab = document.querySelector('[onclick*="switchTab(\'chat\'"]');
+    if (chatTab && !document.getElementById('tab-chat').classList.contains('active')) chatTab.click();
+  }, 1500);
+}
+
+function callCopadoAPI() {
+  showToast('🤖 Copado AI API invoked — analyzing pipeline data…', 2500);
+  setTimeout(()=>{
+    addMessage('agent',
+      `Copado AI Platform API response received!\n\n**Model**: copado-ai-v3\n**Tokens used**: 2,847\n**Latency**: 312ms\n\n**AI Analysis**:\n• Root cause confidence: 98%\n• Recommended action: Apply null-guard patch to OrderService.cls line 847\n• Risk level: LOW (non-breaking change)\n• Estimated fix time: 15 minutes\n\nShall I generate the PR automatically?`,
+      [{label:'Generate PR',style:'success'},{label:'See Full Analysis',style:''},{label:'Dismiss',style:''}]
+    );
+  }, 1200);
+}
+
+// ── TOAST ──────────────────────────────────────────────────────
+function showToast(msg, dur=3000) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), dur);
+}
+
+// ── FLOW VIZ (simple SVG) ─────────────────────────────────────
+function renderFlowViz() {
+  const flowData = [
+    {label:'Record Change Trigger', sub:'copado__Result__c changed', color:'#4f7eff'},
+    {label:'Decision: Status = Failed?', sub:'Check failure condition', color:'#f5a623'},
+    {label:'Apex Action', sub:'CopadoAIService.analyzeFailure()', color:'#a78bfa'},
+    {label:'Post to Slack', sub:'#deployments channel', color:'#4a154b'},
+    {label:'Create SF Case', sub:'Assign to on-call engineer', color:'#22d98a'},
+  ];
+  const container = document.getElementById('flow-viz');
+  if (!container) return;
+  container.innerHTML = flowData.map((n,i)=>`
+    <div style="display:flex;flex-direction:column;align-items:flex-start;gap:0">
+      <div style="background:var(--bg3);border:1px solid var(--border);border-left:3px solid ${n.color};border-radius:8px;padding:8px 12px;width:100%">
+        <div style="font-size:11.5px;font-weight:600;color:var(--text)">${n.label}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px">${n.sub}</div>
+      </div>
+      ${i<flowData.length-1?`<div style="width:1px;height:14px;background:var(--border2);margin-left:16px"></div>`:''}
+    </div>
+  `).join('');
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+renderPipelines();
+selectPipeline('p1');
+renderFlowViz();
+
+// initial greeting
+setTimeout(()=>{
+  addMessage('agent',
+    `Hello! I'm the **Copado AI DevBot**, your intelligent DevOps assistant.\n\nI'm connected to the **Copado AI Platform API** and currently monitoring **4 pipelines**.\n\n⚠️ **Alert**: order-service pipeline has failed — 47 unit tests are failing on main. I've already notified #deployments on Slack.\n\nI can help you diagnose failures, suggest remediations, re-run tests, or trigger Salesforce Flows. How can I assist?`,
+    [{label:'Diagnose order-service',style:'danger'},{label:'Show Health Summary',style:''},{label:'Trigger Remediation',style:'success'}]
+  );
+}, 300);
+</script>
+</body>
+</html>
