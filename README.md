@@ -4,6 +4,12 @@ The Copado Conversational DevOps Agent (CCDA) is a fully headless AI-driven DevO
 
 Instead of forcing DevOps engineers to navigate dashboards and logs, CCDA proactively initiates conversations:
 
+Architecture Flow 
+
+<img width="1536" height="1024" alt="CIPG Architecture" src="https://github.com/user-attachments/assets/48d3e089-efc3-418f-82bb-75fe9a989980" />
+
+
+
 The Problem: The "Context-Switching Tax" in Modern DevOps
 In today’s high-velocity CI/CD environments, the complexity of technical ecosystems has outpaced the human capacity to manage them. When a pipeline failure occurs, developers are immediately pulled into a "Firefighting Feedback Loop" that severely degrades productivity:
 
