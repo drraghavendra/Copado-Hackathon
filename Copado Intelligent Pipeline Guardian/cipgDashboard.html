@@ -1,0 +1,247 @@
+<!-- cipgDashboard.html -->
+<!-- ─────────────────────────────────────────────────────────────────────────
+     CIPG Dashboard — Main Lightning Web Component
+     Embedded on the Copado App Page in Salesforce.
+     Displays live incidents, conversation history, and KB entries.
+     ───────────────────────────────────────────────────────────────────────── -->
+<template>
+    <lightning-card class="cipg-card" title="Pipeline Guardian" icon-name="utility:shield">
+
+        <!-- ── Header toolbar ─────────────────────────────────────────── -->
+        <div slot="actions" class="header-actions">
+            <lightning-badge label={activeIncidentCount}
+                             class="incident-badge slds-m-right_x-small"></lightning-badge>
+            <lightning-button-icon
+                icon-name="utility:refresh"
+                alternative-text="Refresh"
+                title="Refresh incidents"
+                onclick={refreshData}
+                class="slds-m-right_x-small">
+            </lightning-button-icon>
+            <lightning-button
+                label="New Incident"
+                icon-name="utility:add"
+                onclick={openNewIncidentModal}>
+            </lightning-button>
+        </div>
+
+        <!-- ── Loading spinner ───────────────────────────────────────── -->
+        <template if:true={isLoading}>
+            <div class="slds-align_absolute-center slds-p-around_large">
+                <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <!-- ── Error banner ──────────────────────────────────────────── -->
+        <template if:true={errorMessage}>
+            <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
+                <lightning-icon icon-name="utility:error" size="x-small"
+                    class="slds-m-right_x-small"></lightning-icon>
+                {errorMessage}
+                <button class="slds-button slds-button_reset slds-notify__close"
+                    onclick={clearError}>✕</button>
+            </div>
+        </template>
+
+        <!-- ── Stat cards row ────────────────────────────────────────── -->
+        <div class="slds-grid slds-gutters slds-p-around_medium stats-row">
+            <div class="slds-col slds-size_1-of-4">
+                <c-cipg-stat-card
+                    label="Active Incidents"
+                    value={stats.activeIncidents}
+                    color="red"
+                    icon="utility:warning"
+                    trend={stats.incidentTrend}>
+                </c-cipg-stat-card>
+            </div>
+            <div class="slds-col slds-size_1-of-4">
+                <c-cipg-stat-card
+                    label="Avg Triage Time"
+                    value={stats.avgTriageTime}
+                    color="warning"
+                    icon="utility:clock"
+                    trend={stats.triageTrend}>
+                </c-cipg-stat-card>
+            </div>
+            <div class="slds-col slds-size_1-of-4">
+                <c-cipg-stat-card
+                    label="Auto-Resolved"
+                    value={stats.autoResolved}
+                    color="success"
+                    icon="utility:check"
+                    trend={stats.autoResolvedTrend}>
+                </c-cipg-stat-card>
+            </div>
+            <div class="slds-col slds-size_1-of-4">
+                <c-cipg-stat-card
+                    label="KB Entries"
+                    value={stats.kbEntries}
+                    color="brand"
+                    icon="utility:knowledge_base"
+                    trend={stats.kbTrend}>
+                </c-cipg-stat-card>
+            </div>
+        </div>
+
+        <!-- ── Main two-column layout ────────────────────────────────── -->
+        <div class="slds-grid slds-gutters slds-p-around_medium main-layout">
+
+            <!-- Left: Incident list + tabs -->
+            <div class="slds-col slds-size_7-of-12 slds-scrollable_y incident-panel">
+
+                <!-- Tabs: Incidents / Architecture / Knowledge Base -->
+                <lightning-tabset active-tab-value={activeTab}
+                                  onactive={handleTabChange}>
+
+                    <!-- ── Incidents Tab ──────────────────────────────── -->
+                    <lightning-tab label="Live Incidents" value="incidents"
+                                   icon-name="utility:broadcast">
+                        <div class="slds-p-around_small">
+                            <!-- Filter bar -->
+                            <div class="slds-grid slds-gutters slds-m-bottom_small filter-bar">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        type="search"
+                                        placeholder="Search incidents..."
+                                        value={searchTerm}
+                                        onchange={handleSearch}
+                                        class="search-input">
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-4">
+                                    <lightning-combobox
+                                        label=""
+                                        placeholder="All Types"
+                                        options={failureTypeOptions}
+                                        value={selectedType}
+                                        onchange={handleTypeFilter}>
+                                    </lightning-combobox>
+                                </div>
+                                <div class="slds-col slds-size_1-of-4">
+                                    <lightning-combobox
+                                        label=""
+                                        placeholder="All Statuses"
+                                        options={statusOptions}
+                                        value={selectedStatus}
+                                        onchange={handleStatusFilter}>
+                                    </lightning-combobox>
+                                </div>
+                            </div>
+
+                            <!-- Incident cards -->
+                            <template if:true={filteredIncidents.length}>
+                                <template for:each={filteredIncidents} for:item="incident">
+                                    <c-cipg-incident-card
+                                        key={incident.Id}
+                                        incident={incident}
+                                        is-active={incident.isActive}
+                                        onincidentselect={handleIncidentSelect}
+                                        onoverride={handleManualOverride}>
+                                    </c-cipg-incident-card>
+                                </template>
+                            </template>
+
+                            <template if:false={filteredIncidents.length}>
+                                <div class="slds-align_absolute-center slds-p-around_large empty-state">
+                                    <lightning-icon icon-name="utility:check" size="large"
+                                        class="slds-m-bottom_small empty-icon success"></lightning-icon>
+                                    <p class="slds-text-heading_medium">All Clear</p>
+                                    <p class="slds-text-color_weak">No active pipeline incidents</p>
+                                </div>
+                            </template>
+                        </div>
+                    </lightning-tab>
+
+                    <!-- ── Knowledge Base Tab ─────────────────────────── -->
+                    <lightning-tab label="Knowledge Base" value="kb"
+                                   icon-name="utility:knowledge_base">
+                        <div class="slds-p-around_small">
+                            <template if:true={kbEntries.length}>
+                                <lightning-datatable
+                                    data={kbEntries}
+                                    columns={kbColumns}
+                                    key-field="Id"
+                                    hide-checkbox-column
+                                    on-row-action={handleKbRowAction}
+                                    class="kb-table">
+                                </lightning-datatable>
+                            </template>
+                            <template if:false={kbEntries.length}>
+                                <p class="slds-text-color_weak slds-p-around_medium">
+                                    No knowledge base entries yet. Entries are created automatically
+                                    when incidents are resolved.
+                                </p>
+                            </template>
+                        </div>
+                    </lightning-tab>
+
+                </lightning-tabset>
+            </div>
+
+            <!-- Right: AI Chat panel -->
+            <div class="slds-col slds-size_5-of-12">
+                <template if:true={selectedIncident}>
+                    <c-cipg-chat-panel
+                        incident={selectedIncident}
+                        onmessagesent={handleMessageSent}
+                        onactiontriggered={handleAgentAction}>
+                    </c-cipg-chat-panel>
+                </template>
+                <template if:false={selectedIncident}>
+                    <div class="empty-chat-panel slds-align_absolute-center slds-p-around_large">
+                        <lightning-icon icon-name="utility:comments" size="large"
+                            class="slds-m-bottom_small"></lightning-icon>
+                        <p class="slds-text-heading_small slds-m-bottom_x-small">
+                            Select an incident
+                        </p>
+                        <p class="slds-text-color_weak slds-text-align_center">
+                            Choose an incident from the list to view the<br>
+                            Guardian AI conversation and take action.
+                        </p>
+                    </div>
+                </template>
+            </div>
+
+        </div>
+
+    </lightning-card>
+
+    <!-- ── Manual override modal ──────────────────────────────────────────── -->
+    <template if:true={showOverrideModal}>
+        <section role="dialog" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 class="slds-text-heading_medium">Manual Override</h2>
+                    <button class="slds-button slds-button_icon slds-modal__close"
+                        onclick={closeOverrideModal}>
+                        <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                    </button>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-textarea
+                        label="Override Notes"
+                        placeholder="Describe the manual action you are taking..."
+                        value={overrideNotes}
+                        onchange={handleOverrideNotesChange}
+                        max-length="500">
+                    </lightning-textarea>
+                    <lightning-combobox
+                        label="Set Status"
+                        options={overrideStatusOptions}
+                        value={overrideStatus}
+                        onchange={handleOverrideStatusChange}
+                        class="slds-m-top_small">
+                    </lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={closeOverrideModal}
+                        class="slds-m-right_small"></lightning-button>
+                    <lightning-button label="Apply Override" variant="brand"
+                        onclick={applyManualOverride}></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+</template>
