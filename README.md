@@ -69,11 +69,4 @@ Retrieval-Augmented Knowledge Base
 
 Proposed Solution CCDA acts as: AI DevOps Engineer
 
-Continuously:
-
-Monitors pipelines
-Detects failures
-Performs RCA
-Communicates findings
-Suggests fixes
-Executes approved actions
+Continuously Monitors pipelines,Detects failures,Performs RootcauseAnalysis,Communicates findings,Suggests fixes,Executes approved actions
