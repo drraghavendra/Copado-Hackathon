@@ -4,6 +4,30 @@ The Copado Conversational DevOps Agent (CCDA) is a fully headless AI-driven DevO
 
 Instead of forcing DevOps engineers to navigate dashboards and logs, CCDA proactively initiates conversations:
 
+Technical Architecture
+The solution is built upon three primary architectural pillars:
+
+Event Integration Engine: Utilizing the Copado AI Platform API webhooks to monitor real-time CI/CD telemetry. When a failure is detected (e.g., a failed Apex test or deployment error), the system captures the event metadata and raw log outputs.
+
+AI Reasoning Module: A Retrieval-Augmented Generation (RAG) framework that parses the raw log outputs against the team’s historical knowledge base (previous successful resolutions) and standard troubleshooting patterns. This module generates a plain-language summary of the failure and suggests a set of high-probability solutions.
+
+Conversational Action Gateway: An interactive interface that presents the developer with a summary and a decision tree. Through the Agent, the developer can trigger follow-up actions:
+
+“Fetch Logs”: Pulls deeper diagnostic data.
+
+“Re-run Tests”: Triggers selective re-testing.
+
+“Create Ticket”: Automatically opens a Jira issue with pre-filled root cause documentation.
+
+Workflow Process
+Trigger: CI/CD pipeline failure event is ingested by the CIPG Agent.
+
+Dialogue: CIPG initiates a message to the developer: "I’ve detected a failure in the 'UAT-Deploy' pipeline. The error appears to be an unhandled null pointer in 'AccountControllerTest.' Would you like to review the specific stack trace, or should I attempt a re-run of the test class?"
+
+Resolution: The developer chooses an action. The Agent executes the command via the Copado API and confirms success or requests further input if the error persists.
+
+Knowledge Capture: The outcome is logged, effectively training the model on the team's specific codebase patterns.
+
 Architecture Flow 
 
 <img width="1536" height="1024" alt="CIPG Architecture" src="https://github.com/user-attachments/assets/48d3e089-efc3-418f-82bb-75fe9a989980" />
